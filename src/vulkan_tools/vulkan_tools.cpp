@@ -212,6 +212,84 @@ VkRenderPass create_render_pass(VkDevice device) {
   return renderPass;
 }
 
+std::vector<char> readFile(const std::string &filename) {
+  std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+  if (!file.is_open()) {
+    throw std::runtime_error("failed to open file!");
+  }
+
+  size_t fileSize = (size_t)file.tellg();
+  std::vector<char> buffer(fileSize);
+
+  file.seekg(0);
+  file.read(buffer.data(), fileSize);
+
+  file.close();
+
+  return buffer;
+}
+
+VkShaderModule createShaderModule(VkDevice device,
+                                  const std::vector<char> &code) {
+  VkShaderModuleCreateInfo createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.codeSize = code.size();
+  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+  VkShaderModule shaderModule;
+  if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to create shader module!");
+  }
+
+  return shaderModule;
+}
+
+VkPipelineLayout create_graphics_pipeline(VkDevice device) {
+  auto vertShaderCode = readFile("../../compiled_shaders/shader__vert.spv");
+  auto fragShaderCode = readFile("../../compiled_shaders/shader__frag.spv");
+
+  VkShaderModule vertShaderModule = createShaderModule(device, vertShaderCode);
+  VkShaderModule fragShaderModule = createShaderModule(device, fragShaderCode);
+
+  VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+  vertShaderStageInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+
+  vertShaderStageInfo.module = vertShaderModule;
+  vertShaderStageInfo.pName = "main";
+
+  VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+  fragShaderStageInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  fragShaderStageInfo.module = fragShaderModule;
+  fragShaderStageInfo.pName = "main";
+
+  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
+                                                    fragShaderStageInfo};
+
+  VkPipelineLayout pipelineLayout;
+
+  VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+  pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  pipelineLayoutInfo.setLayoutCount = 0;            // Optional
+  pipelineLayoutInfo.pSetLayouts = nullptr;         // Optional
+  pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
+  pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
+                             &pipelineLayout) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create pipeline layout!");
+  }
+
+  // destroy shader modules
+  vkDestroyShaderModule(device, fragShaderModule, nullptr);
+  vkDestroyShaderModule(device, vertShaderModule, nullptr);
+
+  return pipelineLayout;
+}
 VkBuffer create_vertex_buffer(VkDevice device,
                               const std::vector<Vertex> &vertices,
                               std::vector<uint16_t> indices) {

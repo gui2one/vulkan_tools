@@ -86,8 +86,11 @@ int main(int argc, char **argv) {
   std::cout << "created imageView: " << imageView << std::endl;
 
   VkRenderPass renderPass = create_render_pass(device);
+
   VkFramebuffer framebuffer =
       create_framebuffer(device, renderPass, imageView, 128, 128);
+
+  create_graphics_pipeline(device);
 
   std::vector<Vertex> vertices = {
       {{0.0f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Red vertex

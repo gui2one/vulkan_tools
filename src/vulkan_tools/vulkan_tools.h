@@ -1,6 +1,7 @@
 #ifndef VULKAN_TOOLS_H
 #define VULKAN_TOOLS_H
 #pragma once
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -40,6 +41,28 @@ VkRenderPass create_render_pass(VkDevice device);
 VkFramebuffer create_framebuffer(VkDevice device, VkRenderPass renderPass,
                                  VkImageView imageView, uint32_t width,
                                  uint32_t height);
+
+// graphics pipeline
+std::vector<char> readFile(const std::string &filename);
+VkShaderModule createShaderModule(VkDevice device,
+                                  const std::vector<char> &code);
+VkPipelineLayout create_graphics_pipeline(VkDevice device);
+
+// fixed functions
+struct fixedFunctions {
+
+  VkPipelineDynamicStateCreateInfo dynamicState;
+  VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+  VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+  VkViewport viewport;
+  VkPipelineViewportStateCreateInfo viewportState;
+  VkRect2D scissor;
+  VkPipelineRasterizationStateCreateInfo rasterizer;
+  VkPipelineMultisampleStateCreateInfo multisampling;
+  VkPipelineColorBlendAttachmentState colorBlendAttachment;
+  VkPipelineColorBlendStateCreateInfo colorBlending;
+};
+
 VkBuffer create_vertex_buffer(VkDevice device,
                               const std::vector<Vertex> &vertices,
                               std::vector<uint16_t> indices);
