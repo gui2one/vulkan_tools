@@ -246,8 +246,8 @@ VkShaderModule createShaderModule(VkDevice device,
 }
 
 VkPipelineLayout create_graphics_pipeline(VkDevice device) {
-  auto vertShaderCode = readFile("../../compiled_shaders/shader__vert.spv");
-  auto fragShaderCode = readFile("../../compiled_shaders/shader__frag.spv");
+  auto vertShaderCode = readFile("./compiled_shaders/shader__vert.spv");
+  auto fragShaderCode = readFile("./compiled_shaders/shader__frag.spv");
 
   VkShaderModule vertShaderModule = createShaderModule(device, vertShaderCode);
   VkShaderModule fragShaderModule = createShaderModule(device, fragShaderCode);

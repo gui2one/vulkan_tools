@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <vulkan/vulkan.h>
-
+#include <cstring>
 // forward delcare
 std::ostream &operator<<(std::ostream &os,
                          const VkPhysicalDeviceProperties &props);

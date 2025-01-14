@@ -73,6 +73,7 @@ void ImGuiEndFrame() {
 using namespace VK_TOOLS;
 int main(int argc, char **argv) {
 
+  std::cout << argv[0] << std::endl;
   VkInstance vk_instance = create_vulkan_instance();
   VkPhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
