@@ -4,8 +4,7 @@ namespace VK_TOOLS {
 
 bool checkValidationLayerSupport() {
 
-  std::vector<vk::LayerProperties> availableLayers =
-      vk::enumerateInstanceLayerProperties();
+  std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
 
   for (const char *layerName : validationLayers) {
     bool layerFound = false;
@@ -33,23 +32,14 @@ vk::Instance create_vulkan_instance() {
 
   vk::InstanceCreateInfo createInfo = {};
   if (enableValidationLayers) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>(validationLayers.size());
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();
   } else {
     createInfo.enabledLayerCount = 0;
   }
   vk::Instance instance = vk::createInstance(createInfo, nullptr);
   std::cout << "Vulkan instance created" << std::endl;
-  std::vector<vk::ExtensionProperties> extensions =
-      vk::enumerateInstanceExtensionProperties();
 
-  std::cout << "Available extensions:" << std::endl;
-  for (const auto &extension : extensions) {
-    std::cout << extension.extensionName << std::endl;
-  }
-
-  std::cout << "---------------------------" << std::endl;
   return instance;
 }
 
@@ -60,29 +50,26 @@ vk::PhysicalDevice get_vulkan_physical_device(vk::Instance &instance) {
   std::vector<vk::PhysicalDevice> devices = instance.enumeratePhysicalDevices();
   physicalDevice = devices[0]; // Assume the first device
 
-  std::cout
-      << "Vulkan physical device created (automatically picked up first device)"
-      << std::endl;
+  std::cout << "Vulkan physical device created (automatically picked up first device)" << std::endl;
 
   vk::PhysicalDeviceProperties props = physicalDevice.getProperties();
   std::cout << props << std::endl;
 
-  auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
+  // auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
 
-  std::cout << "Available device extensions:" << std::endl;
-  for (const auto &extension : extensions) {
-    std::cout << extension.extensionName << std::endl;
-  }
-  std::cout << "---------------------------" << std::endl;
+  // std::cout << "Available device extensions:" << std::endl;
+  // for (const auto &extension : extensions) {
+  //   std::cout << extension.extensionName << std::endl;
+  // }
+  // std::cout << "---------------------------" << std::endl;
+
   return physicalDevice;
 }
 
-vk::Device get_vulkan_device(vk::Instance &instance,
-                             vk::PhysicalDevice &physicalDevice) {
+vk::Device get_vulkan_device(vk::Instance &instance, vk::PhysicalDevice &physicalDevice) {
   // Get queue family supporting graphics
   uint32_t queueFamilyIndex = 0;
-  std::vector<vk::QueueFamilyProperties> queueFamilyProps =
-      physicalDevice.getQueueFamilyProperties();
+  std::vector<vk::QueueFamilyProperties> queueFamilyProps = physicalDevice.getQueueFamilyProperties();
 
   for (uint32_t i = 0; i < queueFamilyProps.size(); ++i) {
     if (queueFamilyProps.size() > 0) {
@@ -120,15 +107,12 @@ vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
   imageInfo.extent.depth = 1;
   imageInfo.mipLevels = 1;
   imageInfo.arrayLayers = 1;
-  imageInfo.format = vk::Format::eR8G8B8A8Unorm; // Example format
-  imageInfo.tiling = vk::ImageTiling::eOptimal;  // VK_IMAGE_TILING_OPTIMAL;
-  imageInfo.initialLayout =
-      vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
-  imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment |
-                    vk::ImageUsageFlagBits::eTransferSrc;
-  imageInfo.samples = vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
-  imageInfo.sharingMode =
-      vk::SharingMode::eExclusive; // VK_SHARING_MODE_EXCLUSIVE;
+  imageInfo.format = vk::Format::eR8G8B8A8Unorm;         // Example format
+  imageInfo.tiling = vk::ImageTiling::eOptimal;          // VK_IMAGE_TILING_OPTIMAL;
+  imageInfo.initialLayout = vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
+  imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
+  imageInfo.samples = vk::SampleCountFlagBits::e1;     // VK_SAMPLE_COUNT_1_BIT;
+  imageInfo.sharingMode = vk::SharingMode::eExclusive; // VK_SHARING_MODE_EXCLUSIVE;
 
   vk::Image image = device.createImage(imageInfo);
 
@@ -136,8 +120,7 @@ vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
 }
 
 void allocate_image(vk::Device &device, vk::Image &image) {
-  vk::MemoryRequirements memRequirements =
-      device.getImageMemoryRequirements(image);
+  vk::MemoryRequirements memRequirements = device.getImageMemoryRequirements(image);
 
   vk::MemoryAllocateInfo allocInfo{};
   allocInfo.allocationSize = memRequirements.size;
@@ -150,10 +133,9 @@ void allocate_image(vk::Device &device, vk::Image &image) {
 vk::ImageView create_image_view(vk::Device &device, vk::Image &image) {
   vk::ImageViewCreateInfo viewInfo{};
   viewInfo.image = image;
-  viewInfo.viewType = vk::ImageViewType::e2D;   // VK_IMAGE_VIEW_TYPE_2D;
-  viewInfo.format = vk::Format::eR8G8B8A8Unorm; // VK_FORMAT_R8G8B8A8_UNORM;
-  viewInfo.subresourceRange.aspectMask =
-      vk::ImageAspectFlagBits::eColor; // VK_IMAGE_ASPECT_COLOR_BIT;
+  viewInfo.viewType = vk::ImageViewType::e2D;                             // VK_IMAGE_VIEW_TYPE_2D;
+  viewInfo.format = vk::Format::eR8G8B8A8Unorm;                           // VK_FORMAT_R8G8B8A8_UNORM;
+  viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor; // VK_IMAGE_ASPECT_COLOR_BIT;
   viewInfo.subresourceRange.baseMipLevel = 0;
   viewInfo.subresourceRange.levelCount = 1;
   viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -164,10 +146,7 @@ vk::ImageView create_image_view(vk::Device &device, vk::Image &image) {
   return imageView;
 }
 
-vk::Framebuffer create_framebuffer(vk::Device &device,
-                                   vk::RenderPass &renderPass,
-                                   vk::ImageView &imageView, uint32_t width,
-                                   uint32_t height) {
+vk::Framebuffer create_framebuffer(vk::Device &device, vk::RenderPass &renderPass, vk::ImageView &imageView, uint32_t width, uint32_t height) {
   vk::FramebufferCreateInfo framebufferInfo{};
   framebufferInfo.renderPass = renderPass; // Your render pass
   framebufferInfo.attachmentCount = 1;
@@ -210,15 +189,14 @@ vk::RenderPass create_render_pass(vk::Device &device) {
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
 
-  if (device.createRenderPass(&renderPassInfo, nullptr, &renderPass) !=
-      vk::Result::eSuccess) {
+  if (device.createRenderPass(&renderPassInfo, nullptr, &renderPass) != vk::Result::eSuccess) {
     throw std::runtime_error("failed to create render pass!");
   }
 
   return renderPass;
 }
 
-std::vector<char> readFile(const std::string &filename) {
+std::vector<char> read_file(const std::string &filename) {
   std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
   if (!file.is_open()) {
@@ -236,14 +214,12 @@ std::vector<char> readFile(const std::string &filename) {
   return buffer;
 }
 
-vk::ShaderModule createShaderModule(vk::Device &device,
-                                    const std::vector<char> &code) {
+vk::ShaderModule create_shader_module(vk::Device &device, const std::vector<char> &code) {
   vk::ShaderModuleCreateInfo createInfo{};
   createInfo.codeSize = code.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
   vk::ShaderModule shaderModule;
-  if (device.createShaderModule(&createInfo, nullptr, &shaderModule) !=
-      vk::Result::eSuccess) {
+  if (device.createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess) {
     throw std::runtime_error("failed to create shader module!");
   }
 
@@ -251,13 +227,11 @@ vk::ShaderModule createShaderModule(vk::Device &device,
 }
 
 vk::PipelineLayout create_graphics_pipeline(vk::Device &device) {
-  auto vertShaderCode = readFile("./compiled_shaders/shader__vert.spv");
-  auto fragShaderCode = readFile("./compiled_shaders/shader__frag.spv");
+  auto vertShaderCode = read_file("./compiled_shaders/shader__vert.spv");
+  auto fragShaderCode = read_file("./compiled_shaders/shader__frag.spv");
 
-  vk::ShaderModule vertShaderModule =
-      createShaderModule(device, vertShaderCode);
-  vk::ShaderModule fragShaderModule =
-      createShaderModule(device, fragShaderCode);
+  vk::ShaderModule vertShaderModule = create_shader_module(device, vertShaderCode);
+  vk::ShaderModule fragShaderModule = create_shader_module(device, fragShaderCode);
 
   vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
   vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
@@ -270,8 +244,7 @@ vk::PipelineLayout create_graphics_pipeline(vk::Device &device) {
   fragShaderStageInfo.module = fragShaderModule;
   fragShaderStageInfo.pName = "main";
 
-  vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
-                                                      fragShaderStageInfo};
+  vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
   vk::PipelineLayout pipelineLayout;
 
@@ -281,8 +254,7 @@ vk::PipelineLayout create_graphics_pipeline(vk::Device &device) {
   pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
   pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-  if (device.createPipelineLayout(&pipelineLayoutInfo, nullptr,
-                                  &pipelineLayout) != vk::Result::eSuccess) {
+  if (device.createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout) != vk::Result::eSuccess) {
     throw std::runtime_error("failed to create pipeline layout!");
   }
 
@@ -293,9 +265,37 @@ vk::PipelineLayout create_graphics_pipeline(vk::Device &device) {
   return pipelineLayout;
 }
 
-vk::Buffer create_vertex_buffer(vk::Device &device,
-                                const std::vector<Vertex> &vertices,
-                                std::vector<uint16_t> indices) {
+std::vector<std::string> get_instance_available_extensions() {
+  std::vector<std::string> names;
+  std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
+
+  for (const auto &extension : extensions) {
+    names.push_back(extension.extensionName);
+  }
+  return names;
+}
+
+std::vector<std::string> get_physical_device_available_extensions(vk::PhysicalDevice &physicalDevice) {
+  std::vector<std::string> names;
+  for (const auto &extension : physicalDevice.enumerateDeviceExtensionProperties()) {
+    names.push_back(extension.extensionName);
+  }
+  return names;
+}
+
+bool check_physical_device_extension_support(vk::PhysicalDevice &physicalDevice, std::vector<std::string> extensions) {
+
+  for (auto extension : extensions) {
+    auto avail = get_physical_device_available_extensions(physicalDevice);
+
+    if (std::find(avail.begin(), avail.end(), extension) != avail.end()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+vk::Buffer create_vertex_buffer(vk::Device &device, const std::vector<Vertex> &vertices, std::vector<uint16_t> indices) {
   // Create Vulkan buffers (vertex buffer, index buffer, etc.) ???
   vk::Buffer vertexBuffer;
   vk::BufferCreateInfo bufferInfo = {};
@@ -310,8 +310,7 @@ vk::Buffer create_vertex_buffer(vk::Device &device,
 
 // iostream utils
 
-std::ostream &operator<<(std::ostream &os,
-                         const vk::PhysicalDeviceProperties &props) {
+std::ostream &operator<<(std::ostream &os, const vk::PhysicalDeviceProperties &props) {
   os << "---------------------------\n";
   os << "vk::PhysicalDeviceProperties\n";
   os << "  device Name : " << props.deviceName << "\n";

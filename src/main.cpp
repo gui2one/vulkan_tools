@@ -44,10 +44,7 @@ void ImGuiBeginFrame() {
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  ImGui::DockSpaceOverViewport(
-      NULL, NULL,
-      ImGuiDockNodeFlags_None |
-          ImGuiDockNodeFlags_PassthruCentralNode /*|ImGuiDockNodeFlags_NoResize*/);
+  ImGui::DockSpaceOverViewport(NULL, NULL, ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode /*|ImGuiDockNodeFlags_NoResize*/);
 }
 void ImGuiEndFrame() {
 
@@ -76,6 +73,9 @@ int main(int argc, char **argv) {
   vk::Instance vk_instance = create_vulkan_instance();
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
+  bool has_ext = check_physical_device_extension_support(physical_device, {"VK_KHR_external_memory_win32"});
+  std::cout << "has VK_KHR_external_memory_win32 : " << (has_ext ? "true" : "false") << std::endl;
+
   vk::Device device = get_vulkan_device(vk_instance, physical_device);
   std::cout << "Device OK: " << device << std::endl;
 
@@ -88,8 +88,7 @@ int main(int argc, char **argv) {
 
   vk::RenderPass renderPass = create_render_pass(device);
   std::cout << "RenderPass OK: " << renderPass << std::endl;
-  vk::Framebuffer framebuffer =
-      create_framebuffer(device, renderPass, imageView, 128, 128);
+  vk::Framebuffer framebuffer = create_framebuffer(device, renderPass, imageView, 128, 128);
   std::cout << "Framebuffer OK: " << framebuffer << std::endl;
   create_graphics_pipeline(device);
 
@@ -109,8 +108,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  GLFWwindow *window =
-      glfwCreateWindow(1280, 720, "Starter Project", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(1280, 720, "Starter Project", NULL, NULL);
 
   if (window == NULL) {
     std::cout << "Failed to create GLFW window" << std::endl;
