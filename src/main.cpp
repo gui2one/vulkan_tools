@@ -78,20 +78,20 @@ int main(int argc, char **argv) {
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
   vk::Device device = get_vulkan_device(vk_instance, physical_device);
-  std::cout << "Device created : " << device << std::endl;
+  std::cout << "Device OK: " << device << std::endl;
 
   vk::Image image = create_image(device, 128, 128);
   allocate_image(device, image);
-  std::cout << "Image created : " << image << std::endl;
+  std::cout << "Image OK: " << image << std::endl;
 
   vk::ImageView imageView = create_image_view(device, image);
-  std::cout << "ImageView created : " << imageView << std::endl;
+  std::cout << "ImageView OK: " << imageView << std::endl;
 
   vk::RenderPass renderPass = create_render_pass(device);
-  std::cout << "RenderPass created : " << renderPass << std::endl;
-  VkFramebuffer framebuffer =
+  std::cout << "RenderPass OK: " << renderPass << std::endl;
+  vk::Framebuffer framebuffer =
       create_framebuffer(device, renderPass, imageView, 128, 128);
-
+  std::cout << "Framebuffer OK: " << framebuffer << std::endl;
   create_graphics_pipeline(device);
 
   std::vector<Vertex> vertices = {

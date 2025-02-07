@@ -39,9 +39,10 @@ void allocate_image(vk::Device &device, vk::Image &image);
 
 vk::ImageView create_image_view(vk::Device &device, vk::Image &image);
 vk::RenderPass create_render_pass(vk::Device &device);
-VkFramebuffer create_framebuffer(VkDevice device, VkRenderPass renderPass,
-                                 VkImageView imageView, uint32_t width,
-                                 uint32_t height);
+vk::Framebuffer create_framebuffer(vk::Device &device,
+                                   vk::RenderPass &renderPass,
+                                   vk::ImageView &imageView, uint32_t width,
+                                   uint32_t height);
 
 // graphics pipeline
 std::vector<char> readFile(const std::string &filename);

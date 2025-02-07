@@ -147,11 +147,11 @@ vk::ImageView create_image_view(vk::Device &device, vk::Image &image) {
   return imageView;
 }
 
-VkFramebuffer create_framebuffer(VkDevice device, VkRenderPass renderPass,
-                                 VkImageView imageView, uint32_t width,
-                                 uint32_t height) {
-  VkFramebufferCreateInfo framebufferInfo{};
-  framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+vk::Framebuffer create_framebuffer(vk::Device &device,
+                                   vk::RenderPass &renderPass,
+                                   vk::ImageView &imageView, uint32_t width,
+                                   uint32_t height) {
+  vk::FramebufferCreateInfo framebufferInfo{};
   framebufferInfo.renderPass = renderPass; // Your render pass
   framebufferInfo.attachmentCount = 1;
   framebufferInfo.pAttachments = &imageView;
@@ -159,8 +159,7 @@ VkFramebuffer create_framebuffer(VkDevice device, VkRenderPass renderPass,
   framebufferInfo.height = height;
   framebufferInfo.layers = 1;
 
-  VkFramebuffer framebuffer;
-  vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer);
+  vk::Framebuffer framebuffer = device.createFramebuffer(framebufferInfo);
 
   return framebuffer;
 }
