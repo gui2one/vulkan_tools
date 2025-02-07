@@ -31,7 +31,7 @@ vk::Instance create_vulkan_instance() {
   if (enableValidationLayers && !checkValidationLayerSupport()) {
     throw std::runtime_error("validation layers requested, but not available!");
   }
-  vk::Instance instance;
+
   vk::InstanceCreateInfo createInfo = {};
   // createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   if (enableValidationLayers) {
@@ -41,61 +41,60 @@ vk::Instance create_vulkan_instance() {
   } else {
     createInfo.enabledLayerCount = 0;
   }
-  vk::createInstance(&createInfo, nullptr, &instance);
+  vk::Instance instance = vk::createInstance(createInfo, nullptr);
   std::cout << "Vulkan instance created" << std::endl;
   return instance;
 }
 
-VkPhysicalDevice get_vulkan_physical_device(VkInstance instance) {
-  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+vk::PhysicalDevice get_vulkan_physical_device(vk::Instance &instance) {
+  vk::PhysicalDevice physicalDevice = VK_NULL_HANDLE;
   uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-  std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+  // physicalDevice.enumeratePhysicalDevices(instance, &deviceCount, nullptr);
+  std::vector<vk::PhysicalDevice> devices = instance.enumeratePhysicalDevices();
+  // vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
   physicalDevice = devices[0]; // Assume the first device
 
   std::cout
       << "Vulkan physical device created (automatically picked up first device)"
       << std::endl;
-  VkPhysicalDeviceProperties props;
-  vkGetPhysicalDeviceProperties(physicalDevice, &props);
+
+  vk::PhysicalDeviceProperties props = physicalDevice.getProperties();
   std::cout << props << std::endl;
   return physicalDevice;
 }
 
-VkDevice get_vulkan_device(VkInstance instance,
-                           VkPhysicalDevice physicalDevice) {
+vk::Device get_vulkan_device(vk::Instance &instance,
+                             vk::PhysicalDevice &physicalDevice) {
   // Get queue family supporting graphics
   uint32_t queueFamilyIndex = 0;
-  VkQueueFamilyProperties queueFamilyProps[32];
-  uint32_t queueCount;
-  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
-                                           nullptr);
-  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
-                                           queueFamilyProps);
+  std::vector<vk::QueueFamilyProperties> queueFamilyProps =
+      physicalDevice.getQueueFamilyProperties();
 
-  for (uint32_t i = 0; i < queueCount; ++i) {
-    if (queueFamilyProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      queueFamilyIndex = i;
-      break;
+  for (uint32_t i = 0; i < queueFamilyProps.size(); ++i) {
+    if (queueFamilyProps.size() > 0) {
+
+      if (queueFamilyProps[i].queueFlags & vk::QueueFlagBits::eGraphics) {
+        queueFamilyIndex = i;
+        break;
+      }
     }
   }
 
   // Create logical device
-  VkDevice device;
-  VkDeviceQueueCreateInfo queueCreateInfo = {};
-  queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  vk::Device device;
+  vk::DeviceQueueCreateInfo queueCreateInfo = {};
+  // queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   queueCreateInfo.queueFamilyIndex = queueFamilyIndex;
   queueCreateInfo.queueCount = 1;
   float queuePriority = 1.0f;
   queueCreateInfo.pQueuePriorities = &queuePriority;
 
-  VkDeviceCreateInfo deviceCreateInfo = {};
-  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  vk::DeviceCreateInfo deviceCreateInfo = {};
+  // deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.queueCreateInfoCount = 1;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
 
-  vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
+  physicalDevice.createDevice(&deviceCreateInfo, nullptr, &device);
 
   return device;
 }

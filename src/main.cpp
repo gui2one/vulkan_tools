@@ -74,17 +74,18 @@ using namespace VK_TOOLS;
 int main(int argc, char **argv) {
 
   std::cout << argv[0] << std::endl;
-  VkInstance vk_instance = create_vulkan_instance();
-  VkPhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
+  vk::Instance vk_instance = create_vulkan_instance();
+  vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
   VkDevice device = get_vulkan_device(vk_instance, physical_device);
+  std::cout << "Device created : " << device << std::endl;
 
   VkImage image = create_image(device, 128, 128);
   allocate_image(device, image);
-  std::cout << "created image : " << image << std::endl;
+  std::cout << "Image created : " << image << std::endl;
 
   VkImageView imageView = create_image_view(device, image);
-  std::cout << "created imageView: " << imageView << std::endl;
+  std::cout << "ImageView created : " << imageView << std::endl;
 
   VkRenderPass renderPass = create_render_pass(device);
 

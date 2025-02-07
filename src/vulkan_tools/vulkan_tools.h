@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <vulkan/vulkan.h>
+// #include <vulkan/vulkan.h>
 #include <vulkan/vulkan.hpp>
 // forward delcare
 std::ostream &operator<<(std::ostream &os,
@@ -29,10 +29,10 @@ const bool enableValidationLayers = true;
 
 vk::Instance create_vulkan_instance();
 
-VkPhysicalDevice get_vulkan_physical_device(VkInstance instance);
+vk::PhysicalDevice get_vulkan_physical_device(vk::Instance &instance);
 
-VkDevice get_vulkan_device(VkInstance instance,
-                           VkPhysicalDevice physicalDevice);
+vk::Device get_vulkan_device(vk::Instance &instance,
+                             vk::PhysicalDevice &physicalDevice);
 
 VkImage create_image(VkDevice device, uint32_t width, uint32_t height);
 void allocate_image(VkDevice device, VkImage image);
