@@ -126,7 +126,7 @@ void allocate_image(vk::Device &device, vk::Image &image) {
   allocInfo.allocationSize = memRequirements.size;
   allocInfo.memoryTypeIndex = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-  VkDeviceMemory imageMemory = device.allocateMemory(allocInfo);
+  vk::DeviceMemory imageMemory = device.allocateMemory(allocInfo);
   device.bindImageMemory(image, imageMemory, 0);
 }
 
@@ -166,40 +166,28 @@ vk::Framebuffer create_framebuffer(vk::Device &device,
 
 vk::RenderPass create_render_pass(vk::Device &device) {
   vk::AttachmentDescription colorAttachment{};
-  colorAttachment.format =
-      vk::Format::eR8G8B8A8Unorm; // VK_FORMAT_R8G8B8A8_UNORM;
-  colorAttachment.samples =
-      vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
-  colorAttachment.loadOp =
-      vk::AttachmentLoadOp::eClear; // VK_ATTACHMENT_LOAD_OP_CLEAR;
-  colorAttachment.storeOp =
-      vk::AttachmentStoreOp::eStore; // VK_ATTACHMENT_STORE_OP_STORE;
+  colorAttachment.format = vk::Format::eR8G8B8A8Unorm;
+  colorAttachment.samples = vk::SampleCountFlagBits::e1;
+  colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+  colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
 
-  colorAttachment.stencilLoadOp =
-      vk::AttachmentLoadOp::eDontCare; // VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  colorAttachment.stencilStoreOp =
-      vk::AttachmentStoreOp::eDontCare; // VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+  colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 
-  colorAttachment.initialLayout =
-      vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
-  colorAttachment.finalLayout = vk::ImageLayout::
-      eColorAttachmentOptimal; // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+  colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
   vk::AttachmentReference colorAttachmentRef{};
   colorAttachmentRef.attachment = 0;
-  colorAttachmentRef.layout = vk::ImageLayout::
-      eColorAttachmentOptimal; // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
   vk::SubpassDescription subpass{};
-  subpass.pipelineBindPoint =
-      vk::PipelineBindPoint::eGraphics; // VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
 
   vk::RenderPass renderPass;
-  // VkPipelineLayout pipelineLayout;
   vk::RenderPassCreateInfo renderPassInfo{};
-  // renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   renderPassInfo.attachmentCount = 1;
   renderPassInfo.pAttachments = &colorAttachment;
   renderPassInfo.subpassCount = 1;
@@ -231,77 +219,73 @@ std::vector<char> readFile(const std::string &filename) {
   return buffer;
 }
 
-VkShaderModule createShaderModule(VkDevice device,
-                                  const std::vector<char> &code) {
-  VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+vk::ShaderModule createShaderModule(vk::Device &device,
+                                    const std::vector<char> &code) {
+  vk::ShaderModuleCreateInfo createInfo{};
   createInfo.codeSize = code.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-  VkShaderModule shaderModule;
-  if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
-      VK_SUCCESS) {
+  vk::ShaderModule shaderModule;
+  if (device.createShaderModule(&createInfo, nullptr, &shaderModule) !=
+      vk::Result::eSuccess) {
     throw std::runtime_error("failed to create shader module!");
   }
 
   return shaderModule;
 }
 
-VkPipelineLayout create_graphics_pipeline(VkDevice device) {
+vk::PipelineLayout create_graphics_pipeline(vk::Device &device) {
   auto vertShaderCode = readFile("./compiled_shaders/shader__vert.spv");
   auto fragShaderCode = readFile("./compiled_shaders/shader__frag.spv");
 
-  VkShaderModule vertShaderModule = createShaderModule(device, vertShaderCode);
-  VkShaderModule fragShaderModule = createShaderModule(device, fragShaderCode);
+  vk::ShaderModule vertShaderModule =
+      createShaderModule(device, vertShaderCode);
+  vk::ShaderModule fragShaderModule =
+      createShaderModule(device, fragShaderCode);
 
-  VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-  vertShaderStageInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+  vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
+  vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
 
   vertShaderStageInfo.module = vertShaderModule;
   vertShaderStageInfo.pName = "main";
 
-  VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-  fragShaderStageInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
+  fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
   fragShaderStageInfo.module = fragShaderModule;
   fragShaderStageInfo.pName = "main";
 
-  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
-                                                    fragShaderStageInfo};
+  vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
+                                                      fragShaderStageInfo};
 
-  VkPipelineLayout pipelineLayout;
+  vk::PipelineLayout pipelineLayout;
 
-  VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-  pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.setLayoutCount = 0;            // Optional
   pipelineLayoutInfo.pSetLayouts = nullptr;         // Optional
   pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
   pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
-                             &pipelineLayout) != VK_SUCCESS) {
+  if (device.createPipelineLayout(&pipelineLayoutInfo, nullptr,
+                                  &pipelineLayout) != vk::Result::eSuccess) {
     throw std::runtime_error("failed to create pipeline layout!");
   }
 
   // destroy shader modules
-  vkDestroyShaderModule(device, fragShaderModule, nullptr);
-  vkDestroyShaderModule(device, vertShaderModule, nullptr);
+  device.destroyShaderModule(fragShaderModule, nullptr);
+  device.destroyShaderModule(vertShaderModule, nullptr);
 
   return pipelineLayout;
 }
-VkBuffer create_vertex_buffer(VkDevice device,
-                              const std::vector<Vertex> &vertices,
-                              std::vector<uint16_t> indices) {
-  // Create Vulkan buffers (vertex buffer, index buffer, etc.)
-  VkBuffer vertexBuffer;
-  VkBufferCreateInfo bufferInfo = {};
-  bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  bufferInfo.size = sizeof(Vertex) * vertices.size();
-  bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-  vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer);
+vk::Buffer create_vertex_buffer(vk::Device &device,
+                                const std::vector<Vertex> &vertices,
+                                std::vector<uint16_t> indices) {
+  // Create Vulkan buffers (vertex buffer, index buffer, etc.) ???
+  vk::Buffer vertexBuffer;
+  vk::BufferCreateInfo bufferInfo = {};
+  bufferInfo.size = sizeof(Vertex) * vertices.size();
+  bufferInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer;
+
+  device.createBuffer(&bufferInfo, nullptr, &vertexBuffer);
 
   return vertexBuffer;
 }

@@ -73,7 +73,6 @@ void ImGuiEndFrame() {
 using namespace VK_TOOLS;
 int main(int argc, char **argv) {
 
-  // std::cout << argv[0] << std::endl;
   vk::Instance vk_instance = create_vulkan_instance();
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
@@ -102,9 +101,8 @@ int main(int argc, char **argv) {
 
   std::vector<uint16_t> indices = {0, 1, 2};
 
-  VkBuffer vBuffer = create_vertex_buffer(device, vertices, indices);
-  std::cout << "VkBuffer created : ";
-  std::cout << vBuffer << std::endl;
+  vk::Buffer vBuffer = create_vertex_buffer(device, vertices, indices);
+  std::cout << "Vertex Buffer OK: " << vBuffer << std::endl;
 
   if (!glfwInit()) {
     printf("problem with GLFW\n");

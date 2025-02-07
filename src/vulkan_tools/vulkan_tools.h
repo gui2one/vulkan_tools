@@ -46,9 +46,9 @@ vk::Framebuffer create_framebuffer(vk::Device &device,
 
 // graphics pipeline
 std::vector<char> readFile(const std::string &filename);
-VkShaderModule createShaderModule(VkDevice device,
-                                  const std::vector<char> &code);
-VkPipelineLayout create_graphics_pipeline(VkDevice device);
+vk::ShaderModule createShaderModule(vk::Device &device,
+                                    const std::vector<char> &code);
+vk::PipelineLayout create_graphics_pipeline(vk::Device &device);
 
 // fixed functions
 struct fixedFunctions {
@@ -65,9 +65,9 @@ struct fixedFunctions {
   VkPipelineColorBlendStateCreateInfo colorBlending;
 };
 
-VkBuffer create_vertex_buffer(VkDevice device,
-                              const std::vector<Vertex> &vertices,
-                              std::vector<uint16_t> indices);
+vk::Buffer create_vertex_buffer(vk::Device &device,
+                                const std::vector<Vertex> &vertices,
+                                std::vector<uint16_t> indices);
 
 } // namespace VK_TOOLS
 
