@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
   std::vector<uint16_t> indices = {0, 1, 2};
 
   VkBuffer vBuffer = create_vertex_buffer(device, vertices, indices);
-  std::cout << "VkBuffer created : " << std::endl;
+  std::cout << "VkBuffer created : ";
   std::cout << vBuffer << std::endl;
 
   if (!glfwInit()) {

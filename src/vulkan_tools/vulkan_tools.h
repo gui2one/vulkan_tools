@@ -1,11 +1,12 @@
 #ifndef VULKAN_TOOLS_H
 #define VULKAN_TOOLS_H
 #pragma once
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <vulkan/vulkan.h>
-#include <cstring>
+#include <vulkan/vulkan.hpp>
 // forward delcare
 std::ostream &operator<<(std::ostream &os,
                          const VkPhysicalDeviceProperties &props);
@@ -26,7 +27,7 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-VkInstance create_vulkan_instance();
+vk::Instance create_vulkan_instance();
 
 VkPhysicalDevice get_vulkan_physical_device(VkInstance instance);
 

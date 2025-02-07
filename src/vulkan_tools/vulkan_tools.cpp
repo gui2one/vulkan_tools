@@ -27,13 +27,13 @@ bool checkValidationLayerSupport() {
   return true;
 }
 
-VkInstance create_vulkan_instance() {
+vk::Instance create_vulkan_instance() {
   if (enableValidationLayers && !checkValidationLayerSupport()) {
     throw std::runtime_error("validation layers requested, but not available!");
   }
-  VkInstance instance;
-  VkInstanceCreateInfo createInfo = {};
-  createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  vk::Instance instance;
+  vk::InstanceCreateInfo createInfo = {};
+  // createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   if (enableValidationLayers) {
     createInfo.enabledLayerCount =
         static_cast<uint32_t>(validationLayers.size());
@@ -41,7 +41,7 @@ VkInstance create_vulkan_instance() {
   } else {
     createInfo.enabledLayerCount = 0;
   }
-  vkCreateInstance(&createInfo, nullptr, &instance);
+  vk::createInstance(&createInfo, nullptr, &instance);
   std::cout << "Vulkan instance created" << std::endl;
   return instance;
 }
