@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
   vk::Instance vk_instance = create_vulkan_instance();
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
-  VkDevice device = get_vulkan_device(vk_instance, physical_device);
+  vk::Device device = get_vulkan_device(vk_instance, physical_device);
   std::cout << "Device created : " << device << std::endl;
 
   VkImage image = create_image(device, 128, 128);

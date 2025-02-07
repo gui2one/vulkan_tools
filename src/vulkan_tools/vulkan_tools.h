@@ -34,7 +34,7 @@ vk::PhysicalDevice get_vulkan_physical_device(vk::Instance &instance);
 vk::Device get_vulkan_device(vk::Instance &instance,
                              vk::PhysicalDevice &physicalDevice);
 
-VkImage create_image(VkDevice device, uint32_t width, uint32_t height);
+vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height);
 void allocate_image(VkDevice device, VkImage image);
 
 VkImageView create_image_view(VkDevice device, VkImage image);

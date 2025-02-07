@@ -3,11 +3,9 @@
 namespace VK_TOOLS {
 
 bool checkValidationLayerSupport() {
-  uint32_t layerCount;
-  vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-  std::vector<VkLayerProperties> availableLayers(layerCount);
-  vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+  std::vector<vk::LayerProperties> availableLayers =
+      vk::enumerateInstanceLayerProperties();
 
   for (const char *layerName : validationLayers) {
     bool layerFound = false;
@@ -15,6 +13,7 @@ bool checkValidationLayerSupport() {
     for (const auto &layerProperties : availableLayers) {
       if (strcmp(layerName, layerProperties.layerName) == 0) {
         layerFound = true;
+        std::cout << "Validation Layer added : " << layerName << std::endl;
         break;
       }
     }
@@ -33,7 +32,6 @@ vk::Instance create_vulkan_instance() {
   }
 
   vk::InstanceCreateInfo createInfo = {};
-  // createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   if (enableValidationLayers) {
     createInfo.enabledLayerCount =
         static_cast<uint32_t>(validationLayers.size());
@@ -49,9 +47,8 @@ vk::Instance create_vulkan_instance() {
 vk::PhysicalDevice get_vulkan_physical_device(vk::Instance &instance) {
   vk::PhysicalDevice physicalDevice = VK_NULL_HANDLE;
   uint32_t deviceCount = 0;
-  // physicalDevice.enumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
   std::vector<vk::PhysicalDevice> devices = instance.enumeratePhysicalDevices();
-  // vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
   physicalDevice = devices[0]; // Assume the first device
 
   std::cout
@@ -99,25 +96,29 @@ vk::Device get_vulkan_device(vk::Instance &instance,
   return device;
 }
 
-VkImage create_image(VkDevice device, uint32_t width, uint32_t height) {
-  VkImageCreateInfo imageInfo{};
-  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageInfo.imageType = VK_IMAGE_TYPE_2D;
+vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
+  vk::ImageCreateInfo imageInfo{};
+  // imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+  imageInfo.imageType = vk::ImageType::e2D;
   imageInfo.extent.width = width;   // Image width
   imageInfo.extent.height = height; // Image height
   imageInfo.extent.depth = 1;
   imageInfo.mipLevels = 1;
   imageInfo.arrayLayers = 1;
-  imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM; // Example format
-  imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-  imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  imageInfo.usage =
-      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-  imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  imageInfo.format = vk::Format::eR8G8B8A8Unorm; // Example format
+  imageInfo.tiling = vk::ImageTiling::eOptimal;  // VK_IMAGE_TILING_OPTIMAL;
+  imageInfo.initialLayout =
+      vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
+  imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment |
+                    vk::ImageUsageFlagBits::eTransferSrc;
+  // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+  imageInfo.samples = vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
+  imageInfo.sharingMode =
+      vk::SharingMode::eExclusive; // VK_SHARING_MODE_EXCLUSIVE;
 
-  VkImage image;
-  vkCreateImage(device, &imageInfo, nullptr, &image);
+  vk::Image image = device.createImage(imageInfo);
+
+  // vkCreateImage(device, &imageInfo, nullptr, &image);
 
   return image;
 }
