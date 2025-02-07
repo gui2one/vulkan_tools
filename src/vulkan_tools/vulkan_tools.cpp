@@ -41,6 +41,15 @@ vk::Instance create_vulkan_instance() {
   }
   vk::Instance instance = vk::createInstance(createInfo, nullptr);
   std::cout << "Vulkan instance created" << std::endl;
+  std::vector<vk::ExtensionProperties> extensions =
+      vk::enumerateInstanceExtensionProperties();
+
+  std::cout << "Available extensions:" << std::endl;
+  for (const auto &extension : extensions) {
+    std::cout << extension.extensionName << std::endl;
+  }
+
+  std::cout << "---------------------------" << std::endl;
   return instance;
 }
 
@@ -57,6 +66,14 @@ vk::PhysicalDevice get_vulkan_physical_device(vk::Instance &instance) {
 
   vk::PhysicalDeviceProperties props = physicalDevice.getProperties();
   std::cout << props << std::endl;
+
+  auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
+
+  std::cout << "Available device extensions:" << std::endl;
+  for (const auto &extension : extensions) {
+    std::cout << extension.extensionName << std::endl;
+  }
+  std::cout << "---------------------------" << std::endl;
   return physicalDevice;
 }
 
