@@ -80,14 +80,12 @@ vk::Device get_vulkan_device(vk::Instance &instance,
   // Create logical device
   vk::Device device;
   vk::DeviceQueueCreateInfo queueCreateInfo = {};
-  // queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   queueCreateInfo.queueFamilyIndex = queueFamilyIndex;
   queueCreateInfo.queueCount = 1;
   float queuePriority = 1.0f;
   queueCreateInfo.pQueuePriorities = &queuePriority;
 
   vk::DeviceCreateInfo deviceCreateInfo = {};
-  // deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.queueCreateInfoCount = 1;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
 
@@ -98,7 +96,7 @@ vk::Device get_vulkan_device(vk::Instance &instance,
 
 vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
   vk::ImageCreateInfo imageInfo{};
-  // imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+
   imageInfo.imageType = vk::ImageType::e2D;
   imageInfo.extent.width = width;   // Image width
   imageInfo.extent.height = height; // Image height
@@ -111,46 +109,40 @@ vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
       vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
   imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment |
                     vk::ImageUsageFlagBits::eTransferSrc;
-  // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
   imageInfo.samples = vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
   imageInfo.sharingMode =
       vk::SharingMode::eExclusive; // VK_SHARING_MODE_EXCLUSIVE;
 
   vk::Image image = device.createImage(imageInfo);
 
-  // vkCreateImage(device, &imageInfo, nullptr, &image);
-
   return image;
 }
 
-void allocate_image(VkDevice device, VkImage image) {
-  VkMemoryRequirements memRequirements;
-  vkGetImageMemoryRequirements(device, image, &memRequirements);
+void allocate_image(vk::Device &device, vk::Image &image) {
+  vk::MemoryRequirements memRequirements =
+      device.getImageMemoryRequirements(image);
 
-  VkMemoryAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  vk::MemoryAllocateInfo allocInfo{};
   allocInfo.allocationSize = memRequirements.size;
   allocInfo.memoryTypeIndex = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-  VkDeviceMemory imageMemory;
-  vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory);
-  vkBindImageMemory(device, image, imageMemory, 0);
+  VkDeviceMemory imageMemory = device.allocateMemory(allocInfo);
+  device.bindImageMemory(image, imageMemory, 0);
 }
 
-VkImageView create_image_view(VkDevice device, VkImage image) {
-  VkImageViewCreateInfo viewInfo{};
-  viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+vk::ImageView create_image_view(vk::Device &device, vk::Image &image) {
+  vk::ImageViewCreateInfo viewInfo{};
   viewInfo.image = image;
-  viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  viewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-  viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  viewInfo.viewType = vk::ImageViewType::e2D;   // VK_IMAGE_VIEW_TYPE_2D;
+  viewInfo.format = vk::Format::eR8G8B8A8Unorm; // VK_FORMAT_R8G8B8A8_UNORM;
+  viewInfo.subresourceRange.aspectMask =
+      vk::ImageAspectFlagBits::eColor; // VK_IMAGE_ASPECT_COLOR_BIT;
   viewInfo.subresourceRange.baseMipLevel = 0;
   viewInfo.subresourceRange.levelCount = 1;
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
 
-  VkImageView imageView;
-  vkCreateImageView(device, &viewInfo, nullptr, &imageView);
+  vk::ImageView imageView = device.createImageView(viewInfo);
 
   return imageView;
 }
@@ -173,39 +165,49 @@ VkFramebuffer create_framebuffer(VkDevice device, VkRenderPass renderPass,
   return framebuffer;
 }
 
-VkRenderPass create_render_pass(VkDevice device) {
-  VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
-  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+vk::RenderPass create_render_pass(vk::Device &device) {
+  vk::AttachmentDescription colorAttachment{};
+  colorAttachment.format =
+      vk::Format::eR8G8B8A8Unorm; // VK_FORMAT_R8G8B8A8_UNORM;
+  colorAttachment.samples =
+      vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
+  colorAttachment.loadOp =
+      vk::AttachmentLoadOp::eClear; // VK_ATTACHMENT_LOAD_OP_CLEAR;
+  colorAttachment.storeOp =
+      vk::AttachmentStoreOp::eStore; // VK_ATTACHMENT_STORE_OP_STORE;
 
-  colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  colorAttachment.stencilLoadOp =
+      vk::AttachmentLoadOp::eDontCare; // VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  colorAttachment.stencilStoreOp =
+      vk::AttachmentStoreOp::eDontCare; // VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  colorAttachment.initialLayout =
+      vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
+  colorAttachment.finalLayout = vk::ImageLayout::
+      eColorAttachmentOptimal; // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-  VkAttachmentReference colorAttachmentRef{};
+  vk::AttachmentReference colorAttachmentRef{};
   colorAttachmentRef.attachment = 0;
-  colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  colorAttachmentRef.layout = vk::ImageLayout::
+      eColorAttachmentOptimal; // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-  VkSubpassDescription subpass{};
-  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  vk::SubpassDescription subpass{};
+  subpass.pipelineBindPoint =
+      vk::PipelineBindPoint::eGraphics; // VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
 
-  VkRenderPass renderPass;
+  vk::RenderPass renderPass;
   // VkPipelineLayout pipelineLayout;
-  VkRenderPassCreateInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  vk::RenderPassCreateInfo renderPassInfo{};
+  // renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   renderPassInfo.attachmentCount = 1;
   renderPassInfo.pAttachments = &colorAttachment;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
 
-  if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) !=
-      VK_SUCCESS) {
+  if (device.createRenderPass(&renderPassInfo, nullptr, &renderPass) !=
+      vk::Result::eSuccess) {
     throw std::runtime_error("failed to create render pass!");
   }
 

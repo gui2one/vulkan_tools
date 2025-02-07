@@ -73,22 +73,22 @@ void ImGuiEndFrame() {
 using namespace VK_TOOLS;
 int main(int argc, char **argv) {
 
-  std::cout << argv[0] << std::endl;
+  // std::cout << argv[0] << std::endl;
   vk::Instance vk_instance = create_vulkan_instance();
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
   vk::Device device = get_vulkan_device(vk_instance, physical_device);
   std::cout << "Device created : " << device << std::endl;
 
-  VkImage image = create_image(device, 128, 128);
+  vk::Image image = create_image(device, 128, 128);
   allocate_image(device, image);
   std::cout << "Image created : " << image << std::endl;
 
-  VkImageView imageView = create_image_view(device, image);
+  vk::ImageView imageView = create_image_view(device, image);
   std::cout << "ImageView created : " << imageView << std::endl;
 
-  VkRenderPass renderPass = create_render_pass(device);
-
+  vk::RenderPass renderPass = create_render_pass(device);
+  std::cout << "RenderPass created : " << renderPass << std::endl;
   VkFramebuffer framebuffer =
       create_framebuffer(device, renderPass, imageView, 128, 128);
 

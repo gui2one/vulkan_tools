@@ -35,10 +35,10 @@ vk::Device get_vulkan_device(vk::Instance &instance,
                              vk::PhysicalDevice &physicalDevice);
 
 vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height);
-void allocate_image(VkDevice device, VkImage image);
+void allocate_image(vk::Device &device, vk::Image &image);
 
-VkImageView create_image_view(VkDevice device, VkImage image);
-VkRenderPass create_render_pass(VkDevice device);
+vk::ImageView create_image_view(vk::Device &device, vk::Image &image);
+vk::RenderPass create_render_pass(vk::Device &device);
 VkFramebuffer create_framebuffer(VkDevice device, VkRenderPass renderPass,
                                  VkImageView imageView, uint32_t width,
                                  uint32_t height);
