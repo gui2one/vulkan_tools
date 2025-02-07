@@ -9,7 +9,7 @@
 #include <vulkan/vulkan.hpp>
 // forward delcare
 std::ostream &operator<<(std::ostream &os,
-                         const VkPhysicalDeviceProperties &props);
+                         const vk::PhysicalDeviceProperties &props);
 
 namespace VK_TOOLS {
 bool checkValidationLayerSupport();

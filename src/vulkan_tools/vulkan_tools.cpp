@@ -311,16 +311,16 @@ VkBuffer create_vertex_buffer(VkDevice device,
 // iostream utils
 
 std::ostream &operator<<(std::ostream &os,
-                         const VkPhysicalDeviceProperties &props) {
+                         const vk::PhysicalDeviceProperties &props) {
   os << "---------------------------\n";
-  os << "VkPhysicalDeviceProperties\n";
+  os << "vk::PhysicalDeviceProperties\n";
   os << "  device Name : " << props.deviceName << "\n";
   switch (props.deviceType) {
-  case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-    os << "  device Type : VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU\n";
+  case vk::PhysicalDeviceType::eIntegratedGpu:
+    os << "  device Type : vk::PhysicalDeviceType::eIntegratedGpu\n";
     break;
-  case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-    os << "  device Type : VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU\n";
+  case vk::PhysicalDeviceType::eDiscreteGpu:
+    os << "  device Type : vk::PhysicalDeviceType::eDiscreteGpu\n";
     break;
   default:
     os << "  device Type : Unknown\n";
