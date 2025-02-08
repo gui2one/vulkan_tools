@@ -102,12 +102,31 @@ int main(int argc, char **argv) {
 
   vk::Device device = get_vulkan_device(vk_instance, physical_device);
   std::cout << "Device OK: " << device << std::endl;
+  dldi.init(device);
+
+  // Now you can call vkGetMemoryWin32HandleKHR safely
+  auto vkGetMemoryWin32HandleKHR = dldi.vkGetMemoryWin32HandleKHR;
+  if (!vkGetMemoryWin32HandleKHR) {
+    throw std::runtime_error("Failed to load vkGetMemoryWin32HandleKHR!");
+  }
+
+  std::cout << "Successfully loaded vkGetMemoryWin32HandleKHR!" << std::endl;
 
   vk::Image image = create_image(device, 128, 128);
   // allocate_image(device, image);
   std::cout << "Image OK: " << image << std::endl;
 
   vk::DeviceMemory vulkanMemory = bind_image_to_device_memory(device, physical_device, image);
+
+  VkMemoryGetWin32HandleInfoKHR getHandleInfo = {};
+  getHandleInfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
+  getHandleInfo.memory = vulkanMemory;
+  getHandleInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+  HANDLE win32Handle;
+  if (vkGetMemoryWin32HandleKHR) {
+    vkGetMemoryWin32HandleKHR(device, &getHandleInfo, &win32Handle);
+  }
 
   vk::ImageView imageView = create_image_view(device, image);
   std::cout << "ImageView OK: " << imageView << std::endl;
