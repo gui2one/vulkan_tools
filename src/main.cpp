@@ -68,6 +68,15 @@ void ImGuiEndFrame() {
 }
 
 using namespace VK_TOOLS;
+
+void display_extensions(vk::PhysicalDevice &physicalDevice, vk::Instance &instance) {
+  std::vector<std::string> extensions = get_physical_device_available_extensions(physicalDevice);
+  ImGui::Begin("Extensions");
+  for (const auto &extension : extensions) {
+    ImGui::Text("%s", extension.c_str());
+  }
+  ImGui::End();
+}
 int main(int argc, char **argv) {
 
   vk::Instance vk_instance = create_vulkan_instance();
@@ -137,6 +146,8 @@ int main(int argc, char **argv) {
     if (showDemoWindow) {
       ImGui::ShowDemoWindow(&showDemoWindow);
     }
+
+    display_extensions(physical_device, vk_instance);
 
     ImGuiEndFrame();
 
