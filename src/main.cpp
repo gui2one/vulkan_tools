@@ -72,9 +72,20 @@ using namespace VK_TOOLS;
 void display_extensions(vk::PhysicalDevice &physicalDevice, vk::Instance &instance) {
   std::vector<std::string> extensions = get_physical_device_available_extensions(physicalDevice);
   ImGui::Begin("Extensions");
-  for (const auto &extension : extensions) {
-    ImGui::Text("%s", extension.c_str());
+  static char filter[256] = {0};
+  if (ImGui::InputText("Filter", filter, 256)) {
   }
+
+  ImGui::PushItemWidth(-1);
+  ImGui::BeginListBox("##Extensions", ImVec2(0, -1));
+  for (const auto &extension : extensions) {
+    if (std::strstr(extension.c_str(), filter)) {
+
+      ImGui::Text("%s", extension.c_str());
+    }
+  }
+  ImGui::EndListBox();
+  ImGui::PopItemWidth();
   ImGui::End();
 }
 int main(int argc, char **argv) {
