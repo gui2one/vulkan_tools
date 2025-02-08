@@ -118,15 +118,13 @@ int main(int argc, char **argv) {
 
   vk::DeviceMemory vulkanMemory = bind_image_to_device_memory(device, physical_device, image);
 
-  VkMemoryGetWin32HandleInfoKHR getHandleInfo = {};
-  getHandleInfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
+  vk::MemoryGetWin32HandleInfoKHR getHandleInfo = {};
+  // getHandleInfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
   getHandleInfo.memory = vulkanMemory;
-  getHandleInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+  // getHandleInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+  getHandleInfo.handleType = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
 
-  HANDLE win32Handle;
-  if (vkGetMemoryWin32HandleKHR) {
-    vkGetMemoryWin32HandleKHR(device, &getHandleInfo, &win32Handle);
-  }
+  HANDLE win32Handle = device.getMemoryWin32HandleKHR(getHandleInfo, dldi);
 
   vk::ImageView imageView = create_image_view(device, image);
   std::cout << "ImageView OK: " << imageView << std::endl;
