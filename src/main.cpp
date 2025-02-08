@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "vulkan_tools/vulkan_tools.h"
+
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
@@ -15,8 +17,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "vulkan_tools/vulkan_tools.h"
-void ImGuiInit(GLFWwindow *window) {
+static void ImGuiInit(GLFWwindow *window) {
   // init ImGui
   // Setup Dear ImGui context
 
@@ -38,7 +39,7 @@ void ImGuiInit(GLFWwindow *window) {
   // end imgui config
   ///////////
 }
-void ImGuiBeginFrame() {
+static void ImGuiBeginFrame() {
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -46,7 +47,7 @@ void ImGuiBeginFrame() {
 
   ImGui::DockSpaceOverViewport(NULL, NULL, ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode /*|ImGuiDockNodeFlags_NoResize*/);
 }
-void ImGuiEndFrame() {
+static void ImGuiEndFrame() {
 
   // Rendering
   ImGui::Render();
@@ -69,7 +70,7 @@ void ImGuiEndFrame() {
 
 using namespace VK_TOOLS;
 
-void display_extensions(vk::PhysicalDevice &physicalDevice, vk::Instance &instance) {
+static void display_extensions(vk::PhysicalDevice &physicalDevice, vk::Instance &instance) {
   std::vector<std::string> extensions = get_physical_device_available_extensions(physicalDevice);
   ImGui::Begin("Extensions");
   static char filter[256] = {0};
@@ -91,6 +92,7 @@ void display_extensions(vk::PhysicalDevice &physicalDevice, vk::Instance &instan
 int main(int argc, char **argv) {
 
   vk::Instance vk_instance = create_vulkan_instance();
+
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 
   bool has_ext = check_physical_device_extension_support(physical_device, {"VK_KHR_external_memory_win32"});
@@ -100,8 +102,10 @@ int main(int argc, char **argv) {
   std::cout << "Device OK: " << device << std::endl;
 
   vk::Image image = create_image(device, 128, 128);
-  allocate_image(device, image);
+  // allocate_image(device, image);
   std::cout << "Image OK: " << image << std::endl;
+
+  vk::DeviceMemory vulkanMemory = bind_image_to_device_memory(device, physical_device, image);
 
   vk::ImageView imageView = create_image_view(device, image);
   std::cout << "ImageView OK: " << imageView << std::endl;

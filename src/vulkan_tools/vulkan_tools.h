@@ -5,8 +5,13 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 // #include <vulkan/vulkan.h>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
+#include <vulkan/vulkan_win32.h>
 // forward delcare
 std::ostream &operator<<(std::ostream &os, const vk::PhysicalDeviceProperties &props);
 
@@ -33,6 +38,8 @@ vk::Device get_vulkan_device(vk::Instance &instance, vk::PhysicalDevice &physica
 
 vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height);
 void allocate_image(vk::Device &device, vk::Image &image);
+
+vk::DeviceMemory bind_image_to_device_memory(vk::Device &device, vk::PhysicalDevice &physicalDevice, vk::Image &image);
 
 vk::ImageView create_image_view(vk::Device &device, vk::Image &image);
 vk::RenderPass create_render_pass(vk::Device &device);

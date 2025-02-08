@@ -37,6 +37,10 @@ vk::Instance create_vulkan_instance() {
   } else {
     createInfo.enabledLayerCount = 0;
   }
+
+  const char *instanceExtensions[] = {VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME};
+  createInfo.enabledExtensionCount = 1;
+  createInfo.ppEnabledExtensionNames = instanceExtensions;
   vk::Instance instance = vk::createInstance(createInfo, nullptr);
   std::cout << "Vulkan instance created" << std::endl;
 
@@ -80,7 +84,7 @@ vk::Device get_vulkan_device(vk::Instance &instance, vk::PhysicalDevice &physica
       }
     }
   }
-
+  const char *deviceExtensions[] = {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME};
   // Create logical device
   vk::Device device;
   vk::DeviceQueueCreateInfo queueCreateInfo = {};
@@ -92,7 +96,8 @@ vk::Device get_vulkan_device(vk::Instance &instance, vk::PhysicalDevice &physica
   vk::DeviceCreateInfo deviceCreateInfo = {};
   deviceCreateInfo.queueCreateInfoCount = 1;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-
+  deviceCreateInfo.enabledExtensionCount = 2;
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
   physicalDevice.createDevice(&deviceCreateInfo, nullptr, &device);
 
   return device;
@@ -111,8 +116,14 @@ vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
   imageInfo.tiling = vk::ImageTiling::eOptimal;          // VK_IMAGE_TILING_OPTIMAL;
   imageInfo.initialLayout = vk::ImageLayout::eUndefined; // VK_IMAGE_LAYOUT_UNDEFINED;
   imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
-  imageInfo.samples = vk::SampleCountFlagBits::e1;     // VK_SAMPLE_COUNT_1_BIT;
-  imageInfo.sharingMode = vk::SharingMode::eExclusive; // VK_SHARING_MODE_EXCLUSIVE;
+  // imageInfo.usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+  imageInfo.samples = vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
+  // imageInfo.sharingMode = vk::SharingMode::eExclusive;
+
+  // Enable external memory
+  vk::ExternalMemoryImageCreateInfo externalImageInfo{};
+  externalImageInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
+  imageInfo.pNext = &externalImageInfo;
 
   vk::Image image = device.createImage(imageInfo);
 
@@ -130,6 +141,34 @@ void allocate_image(vk::Device &device, vk::Image &image) {
   device.bindImageMemory(image, imageMemory, 0);
 }
 
+static uint32_t findMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
+  vk::PhysicalDeviceMemoryProperties memProperties = physicalDevice.getMemoryProperties();
+
+  for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+    if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+      return i;
+    }
+  }
+
+  throw std::runtime_error("Failed to find a suitable memory type!");
+}
+
+vk::DeviceMemory bind_image_to_device_memory(vk::Device &device, vk::PhysicalDevice &physicalDevice, vk::Image &vulkanImage) {
+  vk::MemoryRequirements memRequirements = device.getImageMemoryRequirements(vulkanImage);
+
+  vk::ExportMemoryAllocateInfo exportAllocInfo{};
+  exportAllocInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
+
+  vk::MemoryAllocateInfo allocInfo{};
+  allocInfo.allocationSize = memRequirements.size;
+  allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  allocInfo.pNext = &exportAllocInfo;
+
+  vk::DeviceMemory vulkanMemory = device.allocateMemory(allocInfo);
+  device.bindImageMemory(vulkanImage, vulkanMemory, 0);
+
+  return vulkanMemory;
+}
 vk::ImageView create_image_view(vk::Device &device, vk::Image &image) {
   vk::ImageViewCreateInfo viewInfo{};
   viewInfo.image = image;
