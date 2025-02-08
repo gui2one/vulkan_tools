@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#define VK_USE_PLATFORM_WIN32_KHR
 #include "vulkan_tools/vulkan_tools.h"
 
 #include <glad/glad.h>
@@ -92,6 +93,7 @@ static void display_extensions(vk::PhysicalDevice &physicalDevice, vk::Instance 
 int main(int argc, char **argv) {
 
   vk::Instance vk_instance = create_vulkan_instance();
+  vk::DispatchLoaderDynamic dldi(vk_instance, vkGetInstanceProcAddr);
 
   vk::PhysicalDevice physical_device = get_vulkan_physical_device(vk_instance);
 

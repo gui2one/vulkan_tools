@@ -84,7 +84,6 @@ vk::Device get_vulkan_device(vk::Instance &instance, vk::PhysicalDevice &physica
       }
     }
   }
-  const char *deviceExtensions[] = {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME};
   // Create logical device
   vk::Device device;
   vk::DeviceQueueCreateInfo queueCreateInfo = {};
@@ -96,6 +95,7 @@ vk::Device get_vulkan_device(vk::Instance &instance, vk::PhysicalDevice &physica
   vk::DeviceCreateInfo deviceCreateInfo = {};
   deviceCreateInfo.queueCreateInfoCount = 1;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+  const char *deviceExtensions[] = {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME};
   deviceCreateInfo.enabledExtensionCount = 2;
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
   physicalDevice.createDevice(&deviceCreateInfo, nullptr, &device);

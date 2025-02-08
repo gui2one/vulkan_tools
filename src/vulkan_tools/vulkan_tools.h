@@ -10,8 +10,10 @@
 #include <windows.h>
 // #include <vulkan/vulkan.h>
 #include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_handles.hpp>
+// #include <vulkan/vulkan_handles.hpp>
+// #include <vulkan/vulkan_structs.hpp>
 #include <vulkan/vulkan_win32.h>
+
 // forward delcare
 std::ostream &operator<<(std::ostream &os, const vk::PhysicalDeviceProperties &props);
 
