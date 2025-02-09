@@ -118,7 +118,7 @@ vk::Image create_image(vk::Device &device, uint32_t width, uint32_t height) {
   imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
   // imageInfo.usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
   imageInfo.samples = vk::SampleCountFlagBits::e1; // VK_SAMPLE_COUNT_1_BIT;
-  // imageInfo.sharingMode = vk::SharingMode::eExclusive;
+  imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
   // Enable external memory
   vk::ExternalMemoryImageCreateInfo externalImageInfo{};
@@ -161,7 +161,7 @@ vk::DeviceMemory bind_image_to_device_memory(vk::Device &device, vk::PhysicalDev
 
   vk::MemoryAllocateInfo allocInfo{};
   allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostCoherent);
   allocInfo.pNext = &exportAllocInfo;
 
   vk::DeviceMemory vulkanMemory = device.allocateMemory(allocInfo);
